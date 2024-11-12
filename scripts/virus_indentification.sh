@@ -48,14 +48,15 @@ rm ${seqID}_r2.fastp.fq.gz
 rm -f ${seqID}.rRNA.sam
 
 # Step 2.1: Assembly with Megahit
-megahit --memory 20000000000 --min-contig-len 300 -t 12 --out-dir ./megahit --out-prefix ${seqID} -1 ${seqID}.cleanreads.1.fq.gz -2 ${seqID}.cleanreads.2.fq.gz
-perl -pe 's/^>/>${seqID}-/' ./megahit/${seqID}.contigs.fa > ./megahit/${seqID}_addname.fna
+mkdir ./${seqID}
+megahit --memory 20000000000 --min-contig-len 300 -t 12 --out-dir ./${seqID}/megahit --out-prefix ${seqID} -1 ${seqID}.cleanreads.1.fq.gz -2 ${seqID}.cleanreads.2.fq.gz
+perl -pe 's/^>/>${seqID}-/'./${seqID}/megahit/${seqID}.contigs.fa >./${seqID}/megahit/${seqID}_addname.fna
 
 # Step 3.1: Scan for RDRP with Palmscan
 
-getorf -sequence ./megahit/${seqID}_addname.fna -outseq ./megahit/${seqID}_addname.faa -minsize 600
+getorf -sequence./${seqID}/megahit/${seqID}_addname.fna -outseq./${seqID}/megahit/${seqID}_addname.faa -minsize 600
 
-${palmscan} -search_pssms ./megahit/${seqID}_addname.faa \\
+${palmscan} -search_pssms./${seqID}/megahit/${seqID}_addname.faa \\
       -tsv palmscan_results/${seqID}.tsv \\
       -fev palmscan_results/${seqID}.fev \\
       -fasta palmscan_results/${seqID}.pp.fasta \\
