@@ -19,6 +19,10 @@ while read -r fq1 fq2 seqID; do
   script_file="${output_dir}/${seqID}.sh"
   echo "#!/bin/bash
 
+# Create sample-specific output directory
+
+mkdir -p ./${seqID}
+
 # Step 1.1: Clean reads with fastp
 fastp --detect_adapter_for_pe \\
       --dedup \\
@@ -32,39 +36,36 @@ fastp --detect_adapter_for_pe \\
       --correction \\
       --thread 8 \\
       -i ${fq1} \\
-      -o ${seqID}_r1.fastp.fq.gz \\
+      -o ./${seqID}/${seqID}_r1.fastp.fq.gz \\
       -I ${fq2} \\
-      -O ${seqID}_r2.fastp.fq.gz \\
-      --json ${seqID}.json \\
-      --html ${seqID}.html
+      -O ./${seqID}/${seqID}_r2.fastp.fq.gz \\
+      --json ./${seqID}/${seqID}.json \\
+      --html ./${seqID}/${seqID}.html
 
 # Step 1.2: Remove rRNA with Bowtie2
-
-bowtie2 --local --threads 8 -1 ${seqID}_r1.fastp.fq.gz -2 ${seqID}_r2.fastp.fq.gz -x ${rRNA_bowtie2_path}/rRNA -S ${seqID}.rRNA.sam --un-conc-gz ${seqID}
-mv ${seqID}.1 ${seqID}.cleanreads.1.fq.gz
-mv ${seqID}.2 ${seqID}.cleanreads.2.fq.gz
-rm ${seqID}_r1.fastp.fq.gz
-rm ${seqID}_r2.fastp.fq.gz
-rm -f ${seqID}.rRNA.sam
+bowtie2 --local --threads 8 -1 ./${seqID}/${seqID}_r1.fastp.fq.gz -2 ./${seqID}/${seqID}_r2.fastp.fq.gz -x ${rRNA_bowtie2_path}/rRNA -S ./${seqID}/${seqID}.rRNA.sam --un-conc-gz ./${seqID}/${seqID}
+mv ./${seqID}/${seqID}.1 ./${seqID}/${seqID}.cleanreads.1.fq.gz
+mv ./${seqID}/${seqID}.2 ./${seqID}/${seqID}.cleanreads.2.fq.gz
+rm ./${seqID}/${seqID}_r1.fastp.fq.gz
+rm ./${seqID}/${seqID}_r2.fastp.fq.gz
+rm -f ./${seqID}/${seqID}.rRNA.sam
 
 # Step 2.1: Assembly with Megahit
-mkdir ./${seqID}
-megahit --memory 20000000000 --min-contig-len 300 -t 12 --out-dir ./${seqID}/megahit --out-prefix ${seqID} -1 ${seqID}.cleanreads.1.fq.gz -2 ${seqID}.cleanreads.2.fq.gz
-perl -pe 's/^>/>${seqID}-/'./${seqID}/megahit/${seqID}.contigs.fa >./${seqID}/megahit/${seqID}_addname.fna
+megahit --memory 20000000000 --min-contig-len 300 -t 12 --out-dir ./${seqID}/megahit --out-prefix ${seqID} -1 ./${seqID}/${seqID}.cleanreads.1.fq.gz -2 ./${seqID}/${seqID}.cleanreads.2.fq.gz
+perl -pe 's/^>/>${seqID}-/' ./${seqID}/megahit/${seqID}.contigs.fa > ./${seqID}/megahit/${seqID}_addname.fna
 
 # Step 3.1: Scan for RDRP with Palmscan
+getorf -sequence ./${seqID}/megahit/${seqID}_addname.fna -outseq ./${seqID}/megahit/${seqID}_addname.faa -minsize 600
 
-getorf -sequence./${seqID}/megahit/${seqID}_addname.fna -outseq./${seqID}/megahit/${seqID}_addname.faa -minsize 600
-
-${palmscan} -search_pssms./${seqID}/megahit/${seqID}_addname.faa \\
-      -tsv palmscan_results/${seqID}.tsv \\
-      -fev palmscan_results/${seqID}.fev \\
-      -fasta palmscan_results/${seqID}.pp.fasta \\
-      -core palmscan_results/${seqID}.core.fasta \\
-      -report_pssms palmscan_results/${seqID}.report.txt
+${palmscan} -search_pssms ./${seqID}/megahit/${seqID}_addname.faa \\
+      -tsv ./${seqID}/palmscan_results/${seqID}.tsv \\
+      -fev ./${seqID}/palmscan_results/${seqID}.fev \\
+      -fasta ./${seqID}/palmscan_results/${seqID}.pp.fasta \\
+      -core ./${seqID}/palmscan_results/${seqID}.core.fasta \\
+      -report_pssms ./${seqID}/palmscan_results/${seqID}.report.txt
 
 # Step 4.1: BLASTP for Functional Annotation
-diamond blastp -q palmscan_results/${seqID}.core.fasta -d ${virushostdb}/virushostdb_protein.dmnd -o blastp_results.txt --evalue 1e-5 --top 5" > ${script_file}
+diamond blastp -q ./${seqID}/palmscan_results/${seqID}.core.fasta -d ${virushostdb}/virushostdb_protein.dmnd -o ./${seqID}/blastp_results.txt --evalue 1e-5 --top 5" > ${script_file}
 
   # Make the script executable
   chmod +x ${script_file}
