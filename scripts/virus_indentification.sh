@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Input file
-input_file="sample.txt"
+input_file="./sample.txt"
 
 # Database paths
 rRNA_bowtie2_path="./bowtie2"
@@ -9,7 +9,7 @@ virushostdb="./db_diamond"
 # Software paths
 palmscan="../bin/palmscan2"
 # Output directory
-output_dir="./output"
+output_dir="./Script"
 # Tax Script directory
 tax_Script="./scripts/blastp_tax.py"
 # Tax Script directory
