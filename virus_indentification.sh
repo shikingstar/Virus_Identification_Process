@@ -7,7 +7,7 @@ input_file="./sample.txt"
 rRNA_bowtie2_path="../bowtie2"
 virushostdb="../db_diamond"
 # Software paths
-palmscan="../bin/palmscan2"
+palmscan="../palmscan2/bin/palmscan2"
 # Output directory
 output_dir="./Script"
 # Tax Script directory
