@@ -41,6 +41,7 @@ fastp --detect_adapter_for_pe \\
       -O ./${seqID}/${seqID}_r2.fastp.fq.gz \\
       --json ./${seqID}/${seqID}.json \\
       --html ./${seqID}/${seqID}.html
+seqkit stats ./${seqID}/${seqID}_r*.fastp.fq.gz >./${seqID}/${seqID}_fastap_stats.txt
 
 # Step 1.2: Remove rRNA with Bowtie2
 bowtie2 --local --threads 8 -1 ./${seqID}/${seqID}_r1.fastp.fq.gz -2 ./${seqID}/${seqID}_r2.fastp.fq.gz -x ${rRNA_bowtie2_path}/rRNA -S ./${seqID}/${seqID}.rRNA.sam --un-conc-gz ./${seqID}/${seqID}
@@ -49,10 +50,12 @@ mv ./${seqID}/${seqID}.2 ./${seqID}/${seqID}.cleanreads.2.fq.gz
 rm ./${seqID}/${seqID}_r1.fastp.fq.gz
 rm ./${seqID}/${seqID}_r2.fastp.fq.gz
 rm -f ./${seqID}/${seqID}.rRNA.sam
+seqkit stats ./${seqID}/${seqID}.cleanreads.*.fq.gz >./${seqID}/${seqID}_cleanreads_stats.txt
 
 # Step 2.1: Assembly with Megahit
 megahit --memory 20000000000 --min-contig-len 300 -t 12 --out-dir ./${seqID}/megahit --out-prefix ${seqID} -1 ./${seqID}/${seqID}.cleanreads.1.fq.gz -2 ./${seqID}/${seqID}.cleanreads.2.fq.gz
 perl -pe 's/^>/>${seqID}-/' ./${seqID}/megahit/${seqID}.contigs.fa > ./${seqID}/megahit/${seqID}_addname.fna
+seqkit stats ./${seqID}/megahit/${seqID}.contigs.fa >./${seqID}/${seqID}_contigs_stats.txt
 
 # Step 3.1: Scan for RDRP with Palmscan
 getorf -sequence ./${seqID}/megahit/${seqID}_addname.fna -outseq ./${seqID}/megahit/${seqID}_addname.faa -minsize 600
