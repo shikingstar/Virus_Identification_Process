@@ -119,7 +119,26 @@ ${palmscan} -search_pssms ./megahit/${seqID}_addname.faa \
 ```bash
 diamond blastp -q palmscan_results/${seqID}.core.fasta -d ./db_diamond/virushostdb_protein.dmnd -o blastp_results.txt --evalue 1e-5 --top 5
 ```
+- **Purpose**:Get classification information of virushostdb
+```bash
+#!/bin/bash
 
+#gunzip virushostdb.formatted.cds.faa.gz
+input_file="virushostdb.formatted.cds.faa"
+
+awk '
+BEGIN { FS="[|]"; OFS="\t" }
+/^>/ {
+    split($1, id, " ")
+    gsub(">", "", id[1])
+    print id[1], $4
+}
+' $input_file >virushostdb.formatted.cds_tax.txt
+```
+- **Purpose**:Get classification information of blastp results
+```bash
+python ./scripts/blastp_tax.py -tax ../virushostdb.formatted.cds_tax.txt -i ./blastp_results.txt  -o ./blastp_results_tax.txt
+```
 ## Script Explanation
 
 The integrated script is in `scripts/virus_indentification.sh`.

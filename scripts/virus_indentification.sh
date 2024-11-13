@@ -10,7 +10,10 @@ virushostdb="./db_diamond"
 palmscan="../bin/palmscan2"
 # Output directory
 output_dir="./scripts"
-
+# Tax Script directory
+tax_Script="./blastp_tax.py"
+# Tax Script directory
+tax_file="./virushostdb.formatted.cds_tax.txt"
 # Create output directory
 mkdir -p ${output_dir}
 
@@ -69,7 +72,7 @@ ${palmscan} -search_pssms ./${seqID}/megahit/${seqID}_addname.faa \\
 
 # Step 4.1: BLASTP for Functional Annotation
 diamond blastp -q ./${seqID}/palmscan_results/${seqID}.core.fasta -d ${virushostdb}/virushostdb_protein.dmnd -o ./${seqID}/blastp_results.txt --evalue 1e-5 --top 5" > ${script_file}
-
+python ${tax_Script} -tax ${tax_file} -i ./${seqID}/blastp_results.txt -o ./${seqID}/blastp_results_tax.txt 
   # Make the script executable
   chmod +x ${script_file}
 done < ${input_file}
