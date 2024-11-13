@@ -9,11 +9,11 @@ virushostdb="./db_diamond"
 # Software paths
 palmscan="../bin/palmscan2"
 # Output directory
-output_dir="./scripts"
+output_dir="./output"
 # Tax Script directory
 tax_Script="./scripts/blastp_tax.py"
 # Tax Script directory
-tax_file="./virushostdb.formatted.cds_tax.txt"
+tax_file="./data/virushostdb.formatted.cds_tax.txt"
 # Create output directory
 mkdir -p ${output_dir}
 
