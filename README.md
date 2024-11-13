@@ -119,7 +119,7 @@ ${palmscan} -search_pssms ./megahit/${seqID}_addname.faa \
 ```bash
 diamond blastp -q palmscan_results/${seqID}.core.fasta -d ./db_diamond/virushostdb_protein.dmnd -o blastp_results.txt --evalue 1e-5 --top 5
 ```
-- **Purpose**:Get classification information of virushostdb
+- **Purpose**:Get classification information of virushostdb (./scripts/virushost_db_tax.sh)
 ```bash
 #!/bin/bash
 
