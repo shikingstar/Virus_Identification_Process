@@ -62,7 +62,7 @@ seqkit stats ./${seqID}/megahit/${seqID}.contigs.fa >./${seqID}/${seqID}_contigs
 
 # Step 3.1: Scan for RDRP with Palmscan
 getorf -sequence ./${seqID}/megahit/${seqID}_addname.fna -outseq ./${seqID}/megahit/${seqID}_addname.faa -minsize 600
-
+mkdir -p ./${seqID}/palmscan_results
 ${palmscan} -search_pssms ./${seqID}/megahit/${seqID}_addname.faa \\
       -tsv ./${seqID}/palmscan_results/${seqID}.tsv \\
       -fev ./${seqID}/palmscan_results/${seqID}.fev \\
